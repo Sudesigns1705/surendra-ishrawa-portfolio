@@ -1,8 +1,7 @@
 const header = document.querySelector('[data-header]');
 const menuToggle = document.querySelector('[data-menu-toggle]');
 const mobileMenu = document.querySelector('[data-mobile-menu]');
-const modal = document.querySelector('[data-video-modal]');
-const instagramFrame = modal?.querySelector('iframe');
+const featuredVideo = document.querySelector('.embedded-reel');
 const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 const setMenu = open => {
@@ -33,22 +32,12 @@ const revealObserver = new IntersectionObserver(entries => {
 }, { threshold: .12, rootMargin: '0px 0px -45px' });
 document.querySelectorAll('.reveal').forEach(element => revealObserver.observe(element));
 
-const openVideo = () => {
-  if (instagramFrame && !instagramFrame.hasAttribute('src')) instagramFrame.src = instagramFrame.dataset.instagramSrc;
-  modal?.classList.add('open');
-  modal?.setAttribute('aria-hidden', 'false');
-  document.body.classList.add('modal-open');
-};
-const closeVideo = () => {
-  if (instagramFrame) instagramFrame.removeAttribute('src');
-  modal?.classList.remove('open');
-  modal?.setAttribute('aria-hidden', 'true');
-  document.body.classList.remove('modal-open');
-};
-document.querySelector('[data-video-open]')?.addEventListener('click', openVideo);
-document.querySelector('[data-video-close]')?.addEventListener('click', closeVideo);
-modal?.addEventListener('click', event => { if (event.target === modal) closeVideo(); });
-document.addEventListener('keydown', event => { if (event.key === 'Escape') { closeVideo(); setMenu(false); } });
+featuredVideo?.addEventListener('dblclick', event => {
+  event.preventDefault();
+  featuredVideo.pause();
+  window.open('https://www.instagram.com/reel/DddnEM4otMH/', '_blank', 'noopener');
+});
+document.addEventListener('keydown', event => { if (event.key === 'Escape') setMenu(false); });
 
 const process = document.querySelector('[data-process]');
 const updateScrollEffects = () => {
@@ -75,4 +64,4 @@ if (glow && window.matchMedia('(pointer:fine)').matches && !prefersReducedMotion
   }, { passive: true });
 }
 
-document.addEventListener('visibilitychange', () => { if (document.hidden) closeVideo(); });
+document.addEventListener('visibilitychange', () => { if (document.hidden) featuredVideo?.pause(); });
