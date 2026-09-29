@@ -2,6 +2,8 @@ const header = document.querySelector('[data-header]');
 const menuToggle = document.querySelector('[data-menu-toggle]');
 const mobileMenu = document.querySelector('[data-mobile-menu]');
 const featuredVideo = document.querySelector('.embedded-reel');
+const motionShowcase = document.querySelector('[data-image-trail]');
+const motionTitle = document.querySelector('[data-motion-title]');
 const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 const setMenu = open => {
@@ -42,6 +44,13 @@ document.addEventListener('keydown', event => { if (event.key === 'Escape') setM
 const process = document.querySelector('[data-process]');
 const updateScrollEffects = () => {
   header?.classList.toggle('scrolled', window.scrollY > 30);
+  if (motionShowcase && motionTitle && !prefersReducedMotion) {
+    const motionRect = motionShowcase.getBoundingClientRect();
+    const motionProgress = Math.max(-1, Math.min(1, (window.innerHeight * .5 - (motionRect.top + motionRect.height * .5)) / window.innerHeight));
+    const lines = motionTitle.querySelectorAll('span');
+    if (lines[0]) lines[0].style.transform = `translate3d(${motionProgress * -34}px,0,0)`;
+    if (lines[1]) lines[1].style.transform = `translate3d(${motionProgress * 34}px,0,0)`;
+  }
   if (!process) return;
   const rect = process.getBoundingClientRect();
   const progress = Math.max(0, Math.min(1, (window.innerHeight - rect.top) / (rect.height + window.innerHeight * .35)));
@@ -62,6 +71,47 @@ if (glow && window.matchMedia('(pointer:fine)').matches && !prefersReducedMotion
     glow.style.top = `${event.clientY}px`;
     glow.style.opacity = '1';
   }, { passive: true });
+}
+
+if (motionShowcase && window.matchMedia('(pointer:fine)').matches && !prefersReducedMotion) {
+  const layer = motionShowcase.querySelector('.trail-layer');
+  const images = motionShowcase.dataset.images?.split('|').filter(Boolean) || [];
+  let imageIndex = 0;
+  let lastX = -200;
+  let lastY = -200;
+
+  images.forEach(source => { const preload = new Image(); preload.src = source; });
+
+  motionShowcase.addEventListener('pointermove', event => {
+    const bounds = motionShowcase.getBoundingClientRect();
+    const x = event.clientX - bounds.left;
+    const y = event.clientY - bounds.top;
+    if (Math.hypot(x - lastX, y - lastY) < 76 || !layer || !images.length) return;
+    lastX = x;
+    lastY = y;
+
+    const frame = document.createElement('figure');
+    const image = document.createElement('img');
+    frame.className = 'trail-image';
+    frame.style.left = `${x}px`;
+    frame.style.top = `${y}px`;
+    image.src = images[imageIndex % images.length];
+    image.alt = '';
+    frame.appendChild(image);
+    layer.appendChild(frame);
+    imageIndex += 1;
+
+    const rotation = imageIndex % 2 ? -5 : 5;
+    const animation = frame.animate([
+      { opacity: 0, transform: `translate(-50%,-50%) scale(.72) rotate(${rotation * -1}deg)` },
+      { opacity: 1, offset: .16, transform: `translate(-50%,-50%) scale(1) rotate(${rotation}deg)` },
+      { opacity: 1, offset: .72, transform: `translate(-50%,-58%) scale(1) rotate(${rotation}deg)` },
+      { opacity: 0, transform: `translate(-50%,-78%) scale(.92) rotate(${rotation * 1.4}deg)` }
+    ], { duration: 1350, easing: 'cubic-bezier(.2,.7,.2,1)', fill: 'forwards' });
+    animation.addEventListener('finish', () => frame.remove(), { once: true });
+  }, { passive: true });
+
+  motionShowcase.addEventListener('pointerleave', () => { lastX = -200; lastY = -200; });
 }
 
 document.addEventListener('visibilitychange', () => { if (document.hidden) featuredVideo?.pause(); });
