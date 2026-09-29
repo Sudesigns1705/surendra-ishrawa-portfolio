@@ -77,6 +77,7 @@ if (glow && window.matchMedia('(pointer:fine)').matches && !prefersReducedMotion
 if (motionShowcase && window.matchMedia('(pointer:fine)').matches && !prefersReducedMotion) {
   const layer = motionShowcase.querySelector('.trail-layer');
   const images = motionShowcase.dataset.images?.split('|').filter(Boolean) || [];
+  const labels = motionShowcase.dataset.labels?.split('|').filter(Boolean) || [];
   let imageIndex = 0;
   let lastX = -200;
   let lastY = -200;
@@ -99,6 +100,9 @@ if (motionShowcase && window.matchMedia('(pointer:fine)').matches && !prefersRed
     image.src = images[imageIndex % images.length];
     image.alt = '';
     frame.appendChild(image);
+    const caption = document.createElement('figcaption');
+    caption.textContent = labels[imageIndex % labels.length] || 'Creative work';
+    frame.appendChild(caption);
     layer.appendChild(frame);
     imageIndex += 1;
 
