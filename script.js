@@ -94,7 +94,7 @@ if (motionShowcase && window.matchMedia('(pointer:fine)').matches && !prefersRed
     const bounds = motionShowcase.getBoundingClientRect();
     const x = event.clientX - bounds.left;
     const y = event.clientY - bounds.top;
-    if (Math.hypot(x - lastX, y - lastY) < 76 || !layer || !iconNames.length) return;
+    if (Math.hypot(x - lastX, y - lastY) < 52 || !layer || !iconNames.length) return;
     lastX = x;
     lastY = y;
 
@@ -115,7 +115,7 @@ if (motionShowcase && window.matchMedia('(pointer:fine)').matches && !prefersRed
       { opacity: 1, offset: .16, transform: `translate(-50%,-50%) scale(1) rotate(${rotation}deg)` },
       { opacity: 1, offset: .72, transform: `translate(-50%,-58%) scale(1) rotate(${rotation}deg)` },
       { opacity: 0, transform: `translate(-50%,-78%) scale(.92) rotate(${rotation * 1.4}deg)` }
-    ], { duration: 1350, easing: 'cubic-bezier(.2,.7,.2,1)', fill: 'forwards' });
+    ], { duration: 1750, easing: 'cubic-bezier(.2,.7,.2,1)', fill: 'forwards' });
     animation.addEventListener('finish', () => frame.remove(), { once: true });
   }, { passive: true });
 
