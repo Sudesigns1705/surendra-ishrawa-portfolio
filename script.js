@@ -76,30 +76,33 @@ if (glow && window.matchMedia('(pointer:fine)').matches && !prefersReducedMotion
 
 if (motionShowcase && window.matchMedia('(pointer:fine)').matches && !prefersReducedMotion) {
   const layer = motionShowcase.querySelector('.trail-layer');
-  const images = motionShowcase.dataset.images?.split('|').filter(Boolean) || [];
+  const iconNames = motionShowcase.dataset.icons?.split('|').filter(Boolean) || [];
   const labels = motionShowcase.dataset.labels?.split('|').filter(Boolean) || [];
   let imageIndex = 0;
   let lastX = -200;
   let lastY = -200;
 
-  images.forEach(source => { const preload = new Image(); preload.src = source; });
+  const icons = {
+    camera: '<svg viewBox="0 0 24 24"><path d="M4 7h3l1.5-2h7L17 7h3v12H4z"/><circle cx="12" cy="13" r="4"/></svg>',
+    heart: '<svg viewBox="0 0 24 24"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1.1L12 21l7.8-7.5 1.1-1.1a5.5 5.5 0 0 0-.1-7.8z"/></svg>',
+    megaphone: '<svg viewBox="0 0 24 24"><path d="M3 11v2h4l9 5V6l-9 5zM7 13l1 6h3"/><path d="M19 9c1.3 1.7 1.3 4.3 0 6"/></svg>',
+    chart: '<svg viewBox="0 0 24 24"><path d="M4 19V5M4 19h16M7 15l4-4 3 2 5-6"/><path d="M16 7h3v3"/></svg>',
+    spark: '<svg viewBox="0 0 24 24"><path d="M12 2l1.8 6.2L20 10l-6.2 1.8L12 18l-1.8-6.2L4 10l6.2-1.8zM19 16l.8 2.2L22 19l-2.2.8L19 22l-.8-2.2L16 19l2.2-.8z"/></svg>'
+  };
 
   motionShowcase.addEventListener('pointermove', event => {
     const bounds = motionShowcase.getBoundingClientRect();
     const x = event.clientX - bounds.left;
     const y = event.clientY - bounds.top;
-    if (Math.hypot(x - lastX, y - lastY) < 76 || !layer || !images.length) return;
+    if (Math.hypot(x - lastX, y - lastY) < 76 || !layer || !iconNames.length) return;
     lastX = x;
     lastY = y;
 
     const frame = document.createElement('figure');
-    const image = document.createElement('img');
     frame.className = 'trail-image';
     frame.style.left = `${x}px`;
     frame.style.top = `${y}px`;
-    image.src = images[imageIndex % images.length];
-    image.alt = '';
-    frame.appendChild(image);
+    frame.insertAdjacentHTML('afterbegin', icons[iconNames[imageIndex % iconNames.length]] || icons.spark);
     const caption = document.createElement('figcaption');
     caption.textContent = labels[imageIndex % labels.length] || 'Creative work';
     frame.appendChild(caption);
