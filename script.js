@@ -4,6 +4,7 @@ const mobileMenu = document.querySelector('[data-mobile-menu]');
 const featuredVideo = document.querySelector('.embedded-reel');
 const motionShowcase = document.querySelector('[data-image-trail]');
 const motionTitle = document.querySelector('[data-motion-title]');
+const curiosity = document.querySelector('[data-curiosity]');
 const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 const setMenu = open => {
@@ -112,6 +113,25 @@ if (motionShowcase && window.matchMedia('(pointer:fine)').matches && !prefersRed
   }, { passive: true });
 
   motionShowcase.addEventListener('pointerleave', () => { lastX = -200; lastY = -200; });
+}
+
+if (curiosity && !prefersReducedMotion) {
+  const pupils = curiosity.querySelectorAll('.eye-pupil');
+  const lookAt = (clientX, clientY) => pupils.forEach(pupil => {
+    const eye = pupil.parentElement;
+    const bounds = eye.getBoundingClientRect();
+    const angle = Math.atan2(clientY - (bounds.top + bounds.height / 2), clientX - (bounds.left + bounds.width / 2));
+    const distance = Math.min(bounds.width * .2, Math.hypot(clientX - (bounds.left + bounds.width / 2), clientY - (bounds.top + bounds.height / 2)) * .12);
+    pupil.style.transform = `translate(calc(-50% + ${Math.cos(angle) * distance}px),calc(-50% + ${Math.sin(angle) * distance}px))`;
+  });
+
+  curiosity.addEventListener('pointermove', event => lookAt(event.clientX, event.clientY), { passive: true });
+  curiosity.addEventListener('pointerdown', event => {
+    lookAt(event.clientX, event.clientY);
+    curiosity.classList.remove('is-looking');
+    requestAnimationFrame(() => curiosity.classList.add('is-looking'));
+  });
+  curiosity.addEventListener('animationend', () => curiosity.classList.remove('is-looking'));
 }
 
 document.addEventListener('visibilitychange', () => { if (document.hidden) featuredVideo?.pause(); });
